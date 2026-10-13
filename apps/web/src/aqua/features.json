@@ -1,0 +1,9 @@
+[
+  {
+    "id": "clone-updates",
+    "name": "Updates from my clone",
+    "description": "The update button pulls the newest nightly and your fork from GitHub, applies your changes on top, and builds the app from X:/t3code.",
+    "defaultEnabled": true,
+    "locked": true
+  }
+]

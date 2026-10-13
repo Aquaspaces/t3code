@@ -943,11 +943,15 @@ interface ResolvedBuildOptions {
   readonly wslRuntime: string | undefined;
 }
 
+const decodeCustomBuildInfo = Schema.decodeUnknownOption(Schema.UnknownFromJsonString);
+
 interface StagePackageJson {
   readonly name: string;
   readonly version: string;
   readonly buildVersion: string;
   readonly t3codeCommitHash: string;
+  /** Aqua's custom build info (aqua/t3code-custom.ps1); read by apps/desktop/src/aqua. */
+  readonly t3codeCustomBuild?: unknown;
   readonly t3codeWebAuthn?: MacWebAuthnEntitlements;
   readonly private: true;
   readonly packageManager: string;
@@ -3864,6 +3868,10 @@ const buildDesktopArtifact = Effect.fn("buildDesktopArtifact")(function* (
     version: appVersion,
     buildVersion: appVersion,
     t3codeCommitHash: commitHash,
+    ...Option.match(decodeCustomBuildInfo(process.env.T3CODE_CUSTOM_BUILD ?? ""), {
+      onNone: () => ({}),
+      onSome: (t3codeCustomBuild) => ({ t3codeCustomBuild }),
+    }),
     // Read by apps/desktop/src/preview/Passkeys.ts; must match the signed entitlements.
     ...(macWebAuthn ? { t3codeWebAuthn: macWebAuthn } : {}),
     private: true,

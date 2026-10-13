@@ -10,6 +10,7 @@ import type {
 import { exposeClerkBridge } from "@clerk/electron/preload";
 import { contextBridge, ipcRenderer, webFrame, webUtils } from "electron";
 
+import * as AquaChannels from "./aqua/channels.ts";
 import * as IpcChannels from "./ipc/channels.ts";
 import { mergeLegacyLocalStorage } from "./legacyLocalStorageMerge.ts";
 
@@ -273,6 +274,11 @@ contextBridge.exposeInMainWorld("desktopBridge", {
     getState: () => ipcRenderer.invoke(IpcChannels.CLI_COMMAND_GET_STATE_CHANNEL),
     install: () => ipcRenderer.invoke(IpcChannels.CLI_COMMAND_INSTALL_CHANNEL),
     uninstall: () => ipcRenderer.invoke(IpcChannels.CLI_COMMAND_UNINSTALL_CHANNEL),
+  },
+  aqua: {
+    getStatus: (options) => ipcRenderer.invoke(AquaChannels.AQUA_GET_STATUS_CHANNEL, options),
+    openClone: () => ipcRenderer.invoke(AquaChannels.AQUA_OPEN_CLONE_CHANNEL),
+    openLog: () => ipcRenderer.invoke(AquaChannels.AQUA_OPEN_LOG_CHANNEL),
   },
   onUpdateState: (listener) => {
     const wrappedListener = (_event: Electron.IpcRendererEvent, state: unknown) => {

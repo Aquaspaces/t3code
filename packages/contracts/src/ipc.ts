@@ -12,6 +12,7 @@ import { AuthAccessTokenResult, AuthSessionState, AuthWebSocketTicketResult } fr
 import { AdvertisedEndpoint } from "./remoteAccess.ts";
 import { ExecutionEnvironmentDescriptor } from "./environment.ts";
 import { type ClientSettings, type QuitConfirmationMode, SnapShotShortcut } from "./settings.ts";
+import type { AquaCustomBridge } from "./aquaCustom.ts";
 import type { EditorId } from "./editor.ts";
 import type { PreviewForwardedShortcut } from "./keybindings.ts";
 
@@ -1252,6 +1253,8 @@ export interface DesktopBridge {
     install: () => Promise<DesktopCliCommandState>;
     uninstall: () => Promise<DesktopCliCommandState>;
   };
+  /** Settings > My features. Present only in Aqua's custom builds. */
+  aqua?: AquaCustomBridge;
   /** Present when the desktop shell accepts `t3 app` activation requests. */
   /**
    * Web links the OS opens with T3 Code as the default browser (macOS). The
