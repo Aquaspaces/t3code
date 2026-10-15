@@ -525,6 +525,8 @@ export function HomeScreen(props: HomeScreenProps) {
     snoozedShelfExpanded,
     workingShelfEnabled,
     workingShelfExpanded,
+    agentActivityOrder,
+    activeTimeOrdered,
     toggleSettledShelf,
     toggleSnoozedShelf,
     toggleWorkingShelf,
@@ -580,13 +582,14 @@ export function HomeScreen(props: HomeScreenProps) {
           queuedThreadKeys,
         }),
       });
-    // The Working beta orders the inbox by time, so only pins can move.
+    // A time-ordered inbox (Working beta or agent-activity order) has no
+    // slots, so only pins can move.
     return new Map([
       ...sectionAvailability("pinned"),
-      ...(workingShelfEnabled ? [] : sectionAvailability("active")),
+      ...(activeTimeOrdered ? [] : sectionAvailability("active")),
     ]);
   }, [
-    workingShelfEnabled,
+    activeTimeOrdered,
     pinReorderEnvironmentIds,
     activeReorderEnvironmentIds,
     props.threads,
@@ -614,6 +617,7 @@ export function HomeScreen(props: HomeScreenProps) {
       settledLimit: settledVisibleCount,
       now: new Date().toISOString(),
       workingShelfEnabled,
+      agentActivityOrder,
       workingShelfExpanded,
       inboxReturnAt: threadListInboxReturns.returnedAt,
       snoozedShelfExpanded,
@@ -621,6 +625,7 @@ export function HomeScreen(props: HomeScreenProps) {
       selectedThreadKey,
     });
   }, [
+    agentActivityOrder,
     workingShelfEnabled,
     workingShelfExpanded,
     pendingOrder,
@@ -819,7 +824,7 @@ export function HomeScreen(props: HomeScreenProps) {
           reorderSupported={
             item.item.pinned
               ? pinReorderEnvironmentIds.has(thread.environmentId)
-              : !workingShelfEnabled && activeReorderEnvironmentIds.has(thread.environmentId)
+              : !activeTimeOrdered && activeReorderEnvironmentIds.has(thread.environmentId)
           }
           canMoveUp={item.canMoveUp}
           canMoveDown={item.canMoveDown}
@@ -879,7 +884,7 @@ export function HomeScreen(props: HomeScreenProps) {
       toggleWorkingShelf,
       v2ProjectTitleByProjectKey,
       props.searchQuery,
-      workingShelfEnabled,
+      activeTimeOrdered,
     ],
   );
   const v2KeyExtractor = useCallback((item: ThreadListV2ListItem) => item.key, []);
@@ -898,7 +903,7 @@ export function HomeScreen(props: HomeScreenProps) {
       selectedThreadKey,
       threadSearchMatchByKey,
       // Rows read it for their reorder menu items.
-      workingShelfEnabled,
+      activeTimeOrdered,
     }),
     [
       projectByKey,
@@ -908,7 +913,7 @@ export function HomeScreen(props: HomeScreenProps) {
       listEnvironments,
       threadSearchMatchByKey,
       v2ProjectTitleByProjectKey,
-      workingShelfEnabled,
+      activeTimeOrdered,
     ],
   );
 

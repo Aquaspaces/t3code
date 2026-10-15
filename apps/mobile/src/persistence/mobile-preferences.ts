@@ -12,6 +12,7 @@ import {
   PullRequestListState,
   type ProviderInstanceId,
   type PullRequestMergeMethod,
+  type SidebarActiveThreadOrder,
   type SidebarProjectGroupingMode,
 } from "@t3tools/contracts";
 import type { ComposerEnterBehavior } from "../lib/composerEnterBehavior";
@@ -85,6 +86,8 @@ export interface Preferences {
   readonly planModeEnabled?: boolean;
   /** Device-local counterpart of web's `sidebarWorkingShelfEnabled` beta. */
   readonly workingShelfEnabled?: boolean;
+  /** Device-local counterpart of web's `sidebarActiveThreadOrder`. */
+  readonly activeThreadOrder?: SidebarActiveThreadOrder;
   /** @deprecated Retained to migrate favorites to the connected environment. */
   readonly modelFavorites?: ReadonlyArray<{
     readonly provider: ProviderInstanceId;
@@ -160,6 +163,7 @@ function sanitizePreferences(parsed: Preferences): Preferences {
     projectGroupingMode?: SidebarProjectGroupingMode;
     planModeEnabled?: boolean;
     workingShelfEnabled?: boolean;
+    activeThreadOrder?: SidebarActiveThreadOrder;
     modelFavorites?: Preferences["modelFavorites"];
     threadListSettledShelfExpanded?: boolean;
     threadListSnoozedShelfExpanded?: boolean;
@@ -264,6 +268,9 @@ function sanitizePreferences(parsed: Preferences): Preferences {
   }
   if (typeof parsed.workingShelfEnabled === "boolean") {
     preferences.workingShelfEnabled = parsed.workingShelfEnabled;
+  }
+  if (parsed.activeThreadOrder === "manual" || parsed.activeThreadOrder === "agent_activity") {
+    preferences.activeThreadOrder = parsed.activeThreadOrder;
   }
   if (Array.isArray(parsed.modelFavorites)) {
     preferences.modelFavorites = parsed.modelFavorites.filter(

@@ -15,6 +15,7 @@ import {
   createInboxReturnTracker,
   isThreadWorking,
   sortInboxThreadsByReturn,
+  sortThreadsByAgentActivity,
   sortWorkingThreadsBySend,
 } from "@t3tools/client-runtime/state/thread-inbox";
 import {
@@ -673,6 +674,9 @@ export function buildThreadListV2Items(input: {
       shelf, and the inbox orders by when each thread came back to the user
       instead of the saved arrangement. */
   readonly workingShelfEnabled?: boolean;
+  /** Orders the inbox by latest agent activity instead of the saved
+      arrangement. Takes precedence over the Working beta's return order. */
+  readonly agentActivityOrder?: boolean;
   /** Expands the Working shelf into rows. Collapsed is the default. */
   readonly workingShelfExpanded?: boolean;
   /** Returns this device observed but the server does not stamp, such as an
@@ -767,9 +771,12 @@ export function buildThreadListV2Items(input: {
 
   // The beta inbox is time-ordered, so the saved arrangement (and any move in
   // flight) is kept but not applied until the beta is off again.
-  const orderedActive = workingShelfEnabled
-    ? sortInboxThreadsByReturn(active, input.inboxReturnAt)
-    : applyPendingThreadOrder(sortThreadsForListV2(active), "active", pending);
+  const orderedActive =
+    input.agentActivityOrder === true
+      ? sortThreadsByAgentActivity(active)
+      : workingShelfEnabled
+        ? sortInboxThreadsByReturn(active, input.inboxReturnAt)
+        : applyPendingThreadOrder(sortThreadsForListV2(active), "active", pending);
   // Newest send first; finishing and waking again do not move a row.
   const orderedWorking = sortWorkingThreadsBySend(working);
   const orderedSnoozed = [...snoozed].sort(

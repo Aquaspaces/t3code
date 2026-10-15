@@ -47,6 +47,7 @@ import {
   type ResponseStreamingMode,
   MIN_TERMINAL_FONT_SIZE,
   type QuitConfirmationMode,
+  SidebarActiveThreadOrder,
   SidebarProjectSortOrder,
 } from "@t3tools/contracts/settings";
 import { resolveServerBackgroundActivitySettings } from "@t3tools/shared/backgroundActivitySettings";
@@ -193,6 +194,12 @@ const SIDEBAR_PROJECT_SORT_ORDER_LABELS: Record<SidebarProjectSortOrder, string>
   manual: "Manual",
 };
 const isSidebarProjectSortOrder = Schema.is(SidebarProjectSortOrder);
+
+const SIDEBAR_ACTIVE_THREAD_ORDER_LABELS: Record<SidebarActiveThreadOrder, string> = {
+  manual: "Manual",
+  agent_activity: "Agent activity",
+};
+const isSidebarActiveThreadOrder = Schema.is(SidebarActiveThreadOrder);
 
 const TIMESTAMP_FORMAT_LABELS = {
   locale: "System default",
@@ -570,6 +577,9 @@ export function useSettingsRestore(onRestored?: () => void) {
       ...(settings.sidebarProjectSortOrder !== DEFAULT_UNIFIED_SETTINGS.sidebarProjectSortOrder
         ? ["Project order"]
         : []),
+      ...(settings.sidebarActiveThreadOrder !== DEFAULT_UNIFIED_SETTINGS.sidebarActiveThreadOrder
+        ? ["Thread order"]
+        : []),
       ...(settings.sidebarWorkingShelfEnabled !==
       DEFAULT_UNIFIED_SETTINGS.sidebarWorkingShelfEnabled
         ? ["Working section"]
@@ -715,6 +725,7 @@ export function useSettingsRestore(onRestored?: () => void) {
       settings.snoozeLimitedThreads,
       settings.sidebarProjectGroupingMode,
       settings.sidebarProjectSortOrder,
+      settings.sidebarActiveThreadOrder,
       settings.sidebarWorkingShelfEnabled,
       settings.sidebarThreadPreviewCount,
       settings.showSkillsInSlashMenu,
@@ -815,6 +826,7 @@ export function useSettingsRestore(onRestored?: () => void) {
       sidebarThreadPreviewCount: DEFAULT_UNIFIED_SETTINGS.sidebarThreadPreviewCount,
       sidebarProjectGroupingMode: DEFAULT_UNIFIED_SETTINGS.sidebarProjectGroupingMode,
       sidebarProjectSortOrder: DEFAULT_UNIFIED_SETTINGS.sidebarProjectSortOrder,
+      sidebarActiveThreadOrder: DEFAULT_UNIFIED_SETTINGS.sidebarActiveThreadOrder,
       sidebarWorkingShelfEnabled: DEFAULT_UNIFIED_SETTINGS.sidebarWorkingShelfEnabled,
       sidebarAutoSettleAfterDays: DEFAULT_UNIFIED_SETTINGS.sidebarAutoSettleAfterDays,
       sidebarAutoSettleKeepPullRequests: DEFAULT_UNIFIED_SETTINGS.sidebarAutoSettleKeepPullRequests,
@@ -2382,6 +2394,47 @@ export function GeneralSettingsPanel() {
               }
               aria-label="Snooze limited threads"
             />
+          }
+        />
+
+        <SettingsRow
+          {...searchableSetting("thread-order")}
+          description="Order of active threads in the sidebar. Agent activity puts the thread whose agent most recently started or finished on top."
+          resetAction={
+            settings.sidebarActiveThreadOrder !==
+            DEFAULT_UNIFIED_SETTINGS.sidebarActiveThreadOrder ? (
+              <SettingResetButton
+                label="thread order"
+                onClick={() =>
+                  updateSettings({
+                    sidebarActiveThreadOrder: DEFAULT_UNIFIED_SETTINGS.sidebarActiveThreadOrder,
+                  })
+                }
+              />
+            ) : null
+          }
+          control={
+            <Select
+              value={settings.sidebarActiveThreadOrder}
+              onValueChange={(value) => {
+                if (isSidebarActiveThreadOrder(value)) {
+                  updateSettings({ sidebarActiveThreadOrder: value });
+                }
+              }}
+            >
+              <SelectTrigger size="sm" className="w-full sm:w-44" aria-label="Thread order">
+                <SelectValue>
+                  {SIDEBAR_ACTIVE_THREAD_ORDER_LABELS[settings.sidebarActiveThreadOrder]}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectPopup align="end" alignItemWithTrigger={false}>
+                {SidebarActiveThreadOrder.literals.map((order) => (
+                  <SelectItem hideIndicator key={order} value={order}>
+                    {SIDEBAR_ACTIVE_THREAD_ORDER_LABELS[order]}
+                  </SelectItem>
+                ))}
+              </SelectPopup>
+            </Select>
           }
         />
 

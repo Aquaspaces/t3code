@@ -66,6 +66,12 @@ export type SidebarThreadSortOrder = typeof SidebarThreadSortOrder.Type;
 // wire field keeps its decoding default below.
 const DEFAULT_SIDEBAR_THREAD_SORT_ORDER: SidebarThreadSortOrder = "updated_at";
 
+/** Active list order in the default sidebar: the user's arrangement, or
+    newest agent activity first. */
+export const SidebarActiveThreadOrder = Schema.Literals(["manual", "agent_activity"]);
+export type SidebarActiveThreadOrder = typeof SidebarActiveThreadOrder.Type;
+export const DEFAULT_SIDEBAR_ACTIVE_THREAD_ORDER: SidebarActiveThreadOrder = "manual";
+
 export const SidebarProjectGroupingMode = Schema.Literals([
   "repository",
   "repository_path",
@@ -481,6 +487,11 @@ export const ClientSettingsSchema = Schema.Struct({
   // time, so manual placement there is ignored (and kept) while it is on.
   sidebarWorkingShelfEnabled: Schema.Boolean.pipe(
     Schema.withDecodingDefault(Effect.succeed(false)),
+  ),
+  // Like the Working beta, agent-activity order ignores (and keeps) manual
+  // placement in the active list while it is on.
+  sidebarActiveThreadOrder: SidebarActiveThreadOrder.pipe(
+    Schema.withDecodingDefault(Effect.succeed(DEFAULT_SIDEBAR_ACTIVE_THREAD_ORDER)),
   ),
   sidebarProjectGroupingMode: SidebarProjectGroupingMode.pipe(
     Schema.withDecodingDefault(Effect.succeed(DEFAULT_SIDEBAR_PROJECT_GROUPING_MODE)),
@@ -1787,6 +1798,7 @@ export const ClientSettingsPatch = Schema.Struct({
   showSkillsInSlashMenu: Schema.optionalKey(Schema.Boolean),
   legacySidebarEnabled: Schema.optionalKey(Schema.Boolean),
   sidebarWorkingShelfEnabled: Schema.optionalKey(Schema.Boolean),
+  sidebarActiveThreadOrder: Schema.optionalKey(SidebarActiveThreadOrder),
   sidebarProjectGroupingMode: Schema.optionalKey(SidebarProjectGroupingMode),
   sidebarProjectGroupingOverrides: Schema.optionalKey(
     Schema.Record(TrimmedNonEmptyString, SidebarProjectGroupingMode),

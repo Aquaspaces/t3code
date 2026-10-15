@@ -297,6 +297,8 @@ function ThreadNavigationSidebarPane(
     snoozedShelfExpanded,
     workingShelfEnabled,
     workingShelfExpanded,
+    agentActivityOrder,
+    activeTimeOrdered,
     toggleSettledShelf,
     toggleSnoozedShelf,
     toggleWorkingShelf,
@@ -350,13 +352,14 @@ function ThreadNavigationSidebarPane(
           queuedThreadKeys,
         }),
       });
-    // The Working beta orders the inbox by time, so only pins can move.
+    // A time-ordered inbox (Working beta or agent-activity order) has no
+    // slots, so only pins can move.
     return new Map([
       ...sectionAvailability("pinned"),
-      ...(workingShelfEnabled ? [] : sectionAvailability("active")),
+      ...(activeTimeOrdered ? [] : sectionAvailability("active")),
     ]);
   }, [
-    workingShelfEnabled,
+    activeTimeOrdered,
     pinReorderEnvironmentIds,
     activeReorderEnvironmentIds,
     threads,
@@ -382,6 +385,7 @@ function ThreadNavigationSidebarPane(
       settledLimit: settledVisibleCount,
       now: new Date().toISOString(),
       workingShelfEnabled,
+      agentActivityOrder,
       workingShelfExpanded,
       inboxReturnAt: threadListInboxReturns.returnedAt,
       snoozedShelfExpanded,
@@ -389,6 +393,7 @@ function ThreadNavigationSidebarPane(
       selectedThreadKey: props.selectedThreadKey ?? null,
     });
   }, [
+    agentActivityOrder,
     workingShelfEnabled,
     workingShelfExpanded,
     pendingOrder,
@@ -610,7 +615,7 @@ function ThreadNavigationSidebarPane(
       listEnvironments,
       threadSearchMatchByKey,
       // Rows read it for their reorder menu items.
-      workingShelfEnabled,
+      activeTimeOrdered,
     }),
     [
       props.selectedThreadKey,
@@ -619,7 +624,7 @@ function ThreadNavigationSidebarPane(
       savedConnectionsById,
       listEnvironments,
       threadSearchMatchByKey,
-      workingShelfEnabled,
+      activeTimeOrdered,
     ],
   );
   useThreadJumpShortcuts(listItems, handleSelectThread);
@@ -737,7 +742,7 @@ function ThreadNavigationSidebarPane(
               reorderSupported={
                 item.item.pinned
                   ? pinReorderEnvironmentIds.has(thread.environmentId)
-                  : !workingShelfEnabled && activeReorderEnvironmentIds.has(thread.environmentId)
+                  : !activeTimeOrdered && activeReorderEnvironmentIds.has(thread.environmentId)
               }
               canMoveUp={item.canMoveUp}
               canMoveDown={item.canMoveDown}
@@ -836,7 +841,7 @@ function ThreadNavigationSidebarPane(
       unpinThread,
       unsettleThread,
       unsnoozeThread,
-      workingShelfEnabled,
+      activeTimeOrdered,
     ],
   );
   // The list ignores sort/group options, so only the environment and project

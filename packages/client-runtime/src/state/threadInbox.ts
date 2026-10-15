@@ -91,6 +91,26 @@ export function sortWorkingThreadsBySend<T extends WorkingSortInput>(threads: re
   return sortNewestFirst(threads, timestamps);
 }
 
+/** "Agent activity" order for the active list: newest first by the latest
+    run's request, start, or completion, so a thread rises when its agent
+    starts and again when it finishes. Threads without runs fall back to
+    creation (or reopening) time. Shared so web and mobile agree. */
+export function sortThreadsByAgentActivity<T extends InboxThreadInput>(threads: readonly T[]): T[] {
+  const timestamps = new Map(
+    threads.map((thread) => [
+      thread,
+      Math.max(
+        toSortableTimestamp(thread.createdAt) ?? 0,
+        toSortableTimestamp(thread.unsettledAt ?? undefined) ?? 0,
+        toSortableTimestamp(thread.latestRun?.requestedAt ?? undefined) ?? 0,
+        toSortableTimestamp(thread.latestRun?.startedAt ?? undefined) ?? 0,
+        toSortableTimestamp(thread.latestRun?.completedAt ?? undefined) ?? 0,
+      ),
+    ]),
+  );
+  return sortNewestFirst(threads, timestamps);
+}
+
 function sortNewestFirst<T extends Pick<EnvironmentThreadShell, "id" | "environmentId">>(
   threads: readonly T[],
   timestamps: ReadonlyMap<T, number>,

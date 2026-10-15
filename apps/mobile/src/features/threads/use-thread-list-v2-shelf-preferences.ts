@@ -19,6 +19,10 @@ export function useThreadListV2ShelfPreferences() {
     loaded && preferencesResult.value.threadListSettledShelfExpanded === true;
   // Working section beta: off until the preference loads and is enabled.
   const workingShelfEnabled = loaded && preferencesResult.value.workingShelfEnabled === true;
+  const agentActivityOrder =
+    loaded && preferencesResult.value.activeThreadOrder === "agent_activity";
+  // Either time order replaces the saved arrangement in the active list.
+  const activeTimeOrdered = workingShelfEnabled || agentActivityOrder;
   const workingShelfExpanded =
     loaded && preferencesResult.value.threadListWorkingShelfExpanded === true;
   const snoozedShelfExpandedRef = useRef(snoozedShelfExpanded);
@@ -49,6 +53,8 @@ export function useThreadListV2ShelfPreferences() {
 
   return {
     loaded,
+    agentActivityOrder,
+    activeTimeOrdered,
     settledShelfExpanded,
     snoozedShelfExpanded,
     workingShelfEnabled,

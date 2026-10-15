@@ -47,6 +47,7 @@ export function SettingsThreadsRouteScreen() {
           contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 18) + 18 }}
         >
           <AutoSettleSettingsRows />
+          <ThreadOrderSettingsSection />
           <BetaSettingsSection />
           <LegacySettingsSection />
         </ScrollView>
@@ -256,6 +257,34 @@ function AutoSettleSettingsRows() {
           </View>
         </SettingsSection>
       ) : null}
+    </View>
+  );
+}
+
+/** Device-local counterpart of web's Thread order in Settings → General. */
+function ThreadOrderSettingsSection() {
+  const savePreferences = useAtomSet(updateMobilePreferencesAtom);
+  const preferences = useAtomValue(mobilePreferencesAtom);
+  const agentActivityOrder =
+    AsyncResult.isSuccess(preferences) && preferences.value.activeThreadOrder === "agent_activity";
+
+  return (
+    <View className="gap-3">
+      <SettingsSection title="Order">
+        <SettingsSwitchRow
+          icon="clock"
+          label="Sort by agent activity"
+          value={agentActivityOrder}
+          onValueChange={(value) =>
+            savePreferences({ activeThreadOrder: value ? "agent_activity" : "manual" })
+          }
+        />
+      </SettingsSection>
+      <Text className="px-2 text-sm text-foreground-muted">
+        Put the thread whose agent most recently started or finished at the top of the active list.
+        While this is on, active threads cannot be moved; your arrangement comes back when you turn
+        it off.
+      </Text>
     </View>
   );
 }

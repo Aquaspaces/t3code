@@ -1062,6 +1062,7 @@ export { sortActiveThreadsByOrderKey as sortThreadsForSidebar } from "@t3tools/c
 export {
   isThreadWorking as isSidebarThreadWorking,
   sortInboxThreadsByReturn,
+  sortThreadsByAgentActivity,
   sortWorkingThreadsBySend,
 } from "@t3tools/client-runtime/state/thread-inbox";
 
